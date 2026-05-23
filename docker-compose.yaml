@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: api-structure-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: api_user
+      POSTGRES_PASSWORD: api_pass
+      POSTGRES_DB: api_structure
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U api_user -d api_structure"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pg:

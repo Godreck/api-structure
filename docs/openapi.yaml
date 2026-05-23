@@ -1,0 +1,277 @@
+openapi: 3.0.3
+info:
+  title: API Structure
+  version: 1.0.0
+  description: API for organizational structure management
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /departments/:
+    post:
+      summary: Create department
+      tags: [departments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentCreateRequest'
+      responses:
+        '201':
+          description: Created department
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+        '400':
+          description: Bad request
+        '409':
+          description: Conflict
+
+  /departments/{id}/employees/:
+    post:
+      summary: Create employee in department
+      tags: [departments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: Department ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeCreateRequest'
+      responses:
+        '201':
+          description: Created employee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeResponse'
+        '400':
+          description: Bad request
+        '404':
+          description: Department not found
+
+  /departments/{id}:
+    get:
+      summary: Get department tree
+      tags: [departments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: depth
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+            maximum: 5
+        - name: include_employees
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Department tree
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+        '400':
+          description: Bad request
+        '404':
+          description: Department not found
+
+    patch:
+      summary: Update department
+      tags: [departments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentUpdateRequest'
+      responses:
+        '200':
+          description: Updated department
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+        '400':
+          description: Bad request
+        '404':
+          description: Department not found
+        '409':
+          description: Conflict
+
+    delete:
+      summary: Delete department
+      tags: [departments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: mode
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [cascade, reassign]
+            default: cascade
+        - name: reassign_to_department_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Deleted
+        '400':
+          description: Bad request
+        '404':
+          description: Department not found
+
+components:
+  schemas:
+    DepartmentCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: IT
+        parent_id:
+          type: integer
+          format: int64
+          nullable: true
+          example: 1
+
+    DepartmentUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          nullable: true
+          example: Backend
+        parent_id:
+          type: integer
+          format: int64
+          nullable: true
+          example: 2
+
+    EmployeeCreateRequest:
+      type: object
+      required: [full_name, position]
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: Ivan Petrov
+        position:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: Backend Developer
+        hired_at:
+          type: string
+          format: date
+          nullable: true
+          example: 2026-05-23
+
+    EmployeeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        department_id:
+          type: integer
+          format: int64
+        full_name:
+          type: string
+        position:
+          type: string
+        hired_at:
+          type: string
+          format: date
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    DepartmentTreeNode:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        parent_id:
+          type: integer
+          format: int64
+          nullable: true
+        employees:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeResponse'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartmentTreeNode'
+
+    DepartmentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        parent_id:
+          type: integer
+          format: int64
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        employees:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeResponse'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartmentTreeNode'
