@@ -17,5 +17,20 @@ services:
       timeout: 3s
       retries: 10
 
+app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api-structure-app
+    restart: unless-stopped
+    environment:
+      DB_DSN: host=postgres port=5432 user=api_user password=api_pass dbname=api_structure sslmode=disable TimeZone=UTC
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+
 volumes:
   pg:
