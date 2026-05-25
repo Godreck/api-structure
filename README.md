@@ -58,6 +58,7 @@ docker compose up -d --build
 
 ## Структура проекта
 
+```
 api-structure
 |- cmd
 |   |-server
@@ -77,6 +78,7 @@ api-structure
 |   |- openapi.yaml
 |- Dockerfile
 |- docker-compose.yaml — запуск PostgreSQL, миграций и приложения.
+```
 
 ## API
 
