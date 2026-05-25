@@ -84,6 +84,7 @@ api-structure
 
 1) Создать подразделение
     POST /departments/
+    
     body:
     ```
     {
@@ -93,6 +94,7 @@ api-structure
 
 2) Создать сотрудника
     POST /departments/{id}/employees/ 
+    
     body:
     ```
     {
@@ -107,6 +109,7 @@ api-structure
 
 4) Обновить подразделение
     PATCH /departments/{id} 
+    
     body:
     ```
     {
