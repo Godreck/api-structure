@@ -16,8 +16,22 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+      start_period: 5s
 
-app:
+  migrations:
+    image: ghcr.io/kukymbr/goose-docker:3.24.3
+    container_name: api-structure-migrations
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: host=postgres port=5432 user=api_user password=api_pass dbname=api_structure sslmode=disable
+    volumes:
+      - ./migrations:/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: up -dir /migrations
+
+  app:
     build:
       context: .
       dockerfile: Dockerfile
@@ -30,7 +44,8 @@ app:
     depends_on:
       postgres:
         condition: service_healthy
-
+      migrations:
+        condition: service_completed_successfully
 
 volumes:
   pg:

@@ -19,7 +19,7 @@ import (
 func main() {
 	dsn := os.Getenv("DB_DSN")
 	if dsn == "" {
-		dsn = "host=localhost port=5432 user=api_user password=api_pass dbname=api_structure sslmode=disable TimeZone=UTC"
+		dsn = "host=postgres port=5432 user=api_user password=api_pass dbname=api_structure sslmode=disable TimeZone=UTC"
 	}
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
